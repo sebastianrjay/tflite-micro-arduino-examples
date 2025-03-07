@@ -85,6 +85,15 @@ void setup() {
   if (micro_op_resolver.AddReshape() != kTfLiteOk) {
     return;
   }
+  if (micro_op_resolver.AddConv2D() != kTfLiteOk) {
+    return;
+  }
+  if (micro_op_resolver.AddTranspose() != kTfLiteOk) {
+    return;
+  }
+  if (micro_op_resolver.AddPad() != kTfLiteOk) {
+    return;
+  }
 
   // Build an interpreter to run the model with.
   static tflite::MicroInterpreter static_interpreter(
