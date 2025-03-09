@@ -147,6 +147,9 @@ void loop() {
   static uint32_t prof_max = 0;
 #endif  // PROFILE_MICRO_SPEECH
 
+  // START OF PREPROCESSING
+  uint32_t _start_time = micros();
+  
   // Fetch the spectrogram for the current time.
   const int32_t current_time = LatestAudioTimestamp();
   int how_many_new_slices = 0;
@@ -163,6 +166,13 @@ void loop() {
     return;
   }
 
+  uint32_t _end_time = micros();
+  MicroPrintf("Preprocessing time: %d us", _end_time - _start_time);
+  // END OF PREPROCESSING
+
+  // START OF NEURAL NETWORK INFERENCE
+  _start_time = micros();
+
   // Copy feature buffer to input tensor
   for (int i = 0; i < kFeatureElementCount; i++) {
     model_input_buffer[i] = feature_buffer[i];
@@ -177,6 +187,14 @@ void loop() {
 
   // Obtain a pointer to the output tensor
   TfLiteTensor* output = interpreter->output(0);
+
+  _end_time = micros();
+  MicroPrintf("Inference time: %d us", _end_time - _start_time);
+  // END OF NEURAL NETWORK INFERENCE
+
+  // START OF POSTPROCESSING
+  _start_time = micros();
+
   // Determine whether a command was recognized based on the output of inference
   const char* found_command = nullptr;
   uint8_t score = 0;
@@ -209,4 +227,8 @@ void loop() {
     }
   }
 #endif  // PROFILE_MICRO_SPEECH
+  
+    _end_time = micros();
+    MicroPrintf("Postprocessing time: %d us", _end_time - _start_time);
+    // END OF POSTPROCESSING
 }
